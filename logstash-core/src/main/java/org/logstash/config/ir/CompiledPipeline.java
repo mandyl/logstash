@@ -150,7 +150,8 @@ public final class CompiledPipeline {
      * @return CompiledPipeline.CompiledExecution the compiled pipeline
      */
     public CompiledPipeline.CompiledExecution buildExecution(boolean orderedExecution) {
-        return orderedExecution
+         LOGGER.info("...build execution order/unorder {}", orderedExecution);
+         return orderedExecution
             ? new CompiledPipeline.CompiledOrderedExecution()
             : new CompiledPipeline.CompiledUnorderedExecution();
     }
@@ -317,11 +318,13 @@ public final class CompiledPipeline {
             // send batch one-by-one as single-element batches down the filters
             @SuppressWarnings({"unchecked"}) final RubyArray<RubyEvent> filterBatch = RubyUtil.RUBY.newArray(1);
             for (final RubyEvent e : batch) {
+                LOGGER.info("...RubyEvent ...metadata {}", e.getEvent().getMetadata());
                 filterBatch.set(0, e);
                 final Collection<RubyEvent> result = compiledFilters.compute(filterBatch, flush, shutdown);
                 copyNonCancelledEvents(result, outputBatch);
                 compiledFilters.clear();
             }
+            LOGGER.info("...outputBatch ...metadata {}", outputBatch);
             compiledOutputs.compute(outputBatch, flush, shutdown);
         }
     }
@@ -335,11 +338,18 @@ public final class CompiledPipeline {
 
         @Override
         public void compute(final Collection<RubyEvent> batch, final boolean flush, final boolean shutdown) {
+            for (final RubyEvent e : batch) {
+                LOGGER.info("...RubyEvent .CompiledUnorderedExecution.event{}", e.getEvent().getData());
+            }         
             // we know for now this comes from batch.collection() which returns a LinkedHashSet
             final Collection<RubyEvent> result = compiledFilters.compute(RubyArray.newArray(RubyUtil.RUBY, batch), flush, shutdown);
             @SuppressWarnings({"unchecked"}) final RubyArray<RubyEvent> outputBatch = RubyUtil.RUBY.newArray(result.size());
             copyNonCancelledEvents(result, outputBatch);
             compiledFilters.clear();
+            int count = outputBatch.size();
+            for (int i = 0; i < count; i++) {
+                LOGGER.info("...outputBatch ... {}", outputBatch.get(i));
+            }
             compiledOutputs.compute(outputBatch, flush, shutdown);
         }
     }

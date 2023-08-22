@@ -189,7 +189,7 @@ module LogStash; class Pipeline < BasePipeline
         "pipeline.batch.size" => settings.get("pipeline.batch.size"),
         "pipeline.batch.delay" => settings.get("pipeline.batch.delay"),
         "pipeline.sources" => pipeline_source_details)
-    @logger.info("Starting pipeline", pipeline_log_params)
+    @logger.info("111111111111111Starting pipeline", pipeline_log_params)
 
     @finished_execution.make_false
     @finished_run.make_false
@@ -356,6 +356,7 @@ module LogStash; class Pipeline < BasePipeline
   # Main body of what a worker thread does
   # Repeatedly takes batches off the queue, filters, then outputs them
   def worker_loop(batch_size, batch_delay)
+    @logger.info("....in worker loop.....", :batch_size => batch_size, :batch_delay => batch_delay)
     filter_queue_client.set_batch_dimensions(batch_size, batch_delay)
     output_events_map = Hash.new { |h, k| h[k] = [] }
     while true
@@ -364,6 +365,7 @@ module LogStash; class Pipeline < BasePipeline
       batch = filter_queue_client.read_batch.to_java # metrics are started in read_batch
       batch_size = batch.filteredSize
       events = batch.to_a
+      @logger.info("...events....", :evetns => events)
       if batch_size > 0
         @events_consumed.add(batch_size)
         events = filter_batch(events)
@@ -414,6 +416,7 @@ module LogStash; class Pipeline < BasePipeline
   def output_batch(events, output_events_map)
     # Build a mapping of { output_plugin => [events...]}
     events.each do |event|
+      @logger.info("....output_batch event.eachs is ....", :event => event)
       unless event.cancelled?
         # We ask the AST to tell us which outputs to send each event to
         # Then, we stick it in the correct bin
@@ -425,6 +428,7 @@ module LogStash; class Pipeline < BasePipeline
     # Now that we have our output to event mapping we can just invoke each output
     # once with its list of events
     output_events_map.each do |output, events|
+      @logger.info("output_batch....", :events => events)
       output.multi_receive(events)
       events.clear
     end
@@ -471,6 +475,7 @@ module LogStash; class Pipeline < BasePipeline
     ThreadContext.put("pipeline.id", pipeline_id)
     ThreadContext.put("plugin.id", plugin.id)
     begin
+      @logger.info("....inputworker.....", :configname => plugin.class.config_name)
       plugin.run(wrapped_write_client(plugin.id.to_sym))
     rescue => e
       if plugin.stop?

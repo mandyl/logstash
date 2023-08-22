@@ -114,7 +114,7 @@ module LogStash; class JavaPipeline < JavaBasePipeline
     collect_stats
     collect_dlq_stats
 
-    @logger.debug("Starting pipeline", default_logging_keys)
+    @logger.debug("22222222Starting pipeline", default_logging_keys)
 
     @finished_execution.make_false
     @finished_run.make_false
@@ -262,7 +262,7 @@ module LogStash; class JavaPipeline < JavaBasePipeline
         "pipeline.batch.delay" => batch_delay,
         "pipeline.max_inflight" => max_inflight,
         "pipeline.sources" => pipeline_source_details)
-      @logger.info("Starting pipeline", pipeline_log_params)
+      @logger.info("333333333Starting pipeline", pipeline_log_params)
 
       if max_inflight > MAX_INFLIGHT_WARN_THRESHOLD
         @logger.warn("CAUTION: Recommended inflight events max exceeded! Logstash will run with up to #{max_inflight} events in memory in your current configuration. If your message sizes are large this may cause instability with the default heap size. Please consider setting a non-standard heap size, changing the batch size (currently #{batch_size}), or changing the number of pipeline workers (currently #{pipeline_workers})", default_logging_keys)
@@ -371,6 +371,7 @@ module LogStash; class JavaPipeline < JavaBasePipeline
     ThreadContext.put("pipeline.id", pipeline_id)
     ThreadContext.put("plugin.id", plugin.id)
     begin
+      @logger.info("......inputworker run....", :plugin => plugin.class.config_name)
       plugin.run(wrapped_write_client(plugin.id.to_sym))
     rescue => e
       if plugin.stop?
