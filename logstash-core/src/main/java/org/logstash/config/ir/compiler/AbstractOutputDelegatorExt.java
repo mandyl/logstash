@@ -20,6 +20,8 @@
 
 package org.logstash.config.ir.compiler;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import org.jruby.Ruby;
@@ -40,6 +42,8 @@ import org.logstash.instrument.metrics.counter.LongCounter;
 
 @JRubyClass(name = "AbstractOutputDelegator")
 public abstract class AbstractOutputDelegatorExt extends RubyObject {
+
+    private static final Logger LOGGER = LogManager.getLogger(AbstractOutputDelegatorExt.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -118,6 +122,7 @@ public abstract class AbstractOutputDelegatorExt extends RubyObject {
         final int count = batch.size();
         eventMetricIn.increment((long) count);
         final long start = System.nanoTime();
+        LOGGER.info("...multiReceive...{} {}", batch.size(), Thread.currentThread().getName());
         doOutput(batch);
         eventMetricTime.increment(TimeUnit.MILLISECONDS.convert(System.nanoTime() - start, TimeUnit.NANOSECONDS));
         eventMetricOut.increment((long) count);

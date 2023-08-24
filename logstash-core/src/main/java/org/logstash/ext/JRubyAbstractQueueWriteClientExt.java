@@ -20,6 +20,8 @@
 
 package org.logstash.ext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.Collection;
 import org.jruby.Ruby;
 import org.jruby.RubyBasicObject;
@@ -33,6 +35,8 @@ import org.logstash.execution.queue.QueueWriter;
 @JRubyClass(name = "AbstractQueueWriteClient")
 public abstract class JRubyAbstractQueueWriteClientExt extends RubyBasicObject implements QueueWriter {
 
+    private static final Logger LOGGER = LogManager.getLogger(JRubyAbstractQueueWriteClientExt.class);
+
     private static final long serialVersionUID = 1L;
 
     protected JRubyAbstractQueueWriteClientExt(final Ruby runtime, final RubyClass metaClass) {
@@ -42,6 +46,7 @@ public abstract class JRubyAbstractQueueWriteClientExt extends RubyBasicObject i
     @JRubyMethod(name = {"push", "<<"}, required = 1)
     public final JRubyAbstractQueueWriteClientExt rubyPush(final ThreadContext context,
         final IRubyObject event) throws InterruptedException {
+        LOGGER.info("...rubyPush..push<<.{} {}", event, Thread.currentThread().getName());
         doPush(context, (JrubyEventExtLibrary.RubyEvent) event);
         return this;
     }

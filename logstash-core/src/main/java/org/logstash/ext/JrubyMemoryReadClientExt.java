@@ -20,6 +20,8 @@
 
 package org.logstash.ext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.jruby.Ruby;
@@ -34,6 +36,7 @@ import org.logstash.execution.QueueReadClientBase;
 @JRubyClass(name = "MemoryReadClient", parent = "QueueReadClientBase")
 public final class JrubyMemoryReadClientExt extends QueueReadClientBase {
 
+    private static final Logger LOGGER = LogManager.getLogger(JrubyMemoryReadClientExt.class);
     private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("rawtypes") private BlockingQueue queue;
@@ -77,8 +80,8 @@ public final class JrubyMemoryReadClientExt extends QueueReadClientBase {
     @Override
     @SuppressWarnings("unchecked")
     public QueueBatch readBatch() throws InterruptedException {
-        final MemoryReadBatch batch = MemoryReadBatch.create(LsQueueUtils.drain(queue, batchSize, waitForNanos));
-        startMetrics(batch);
+       final MemoryReadBatch batch = MemoryReadBatch.create(LsQueueUtils.drain(queue, batchSize, waitForNanos));
+       startMetrics(batch);
         return batch;
     }
 

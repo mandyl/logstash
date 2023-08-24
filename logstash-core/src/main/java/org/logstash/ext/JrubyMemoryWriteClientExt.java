@@ -20,6 +20,8 @@
 
 package org.logstash.ext;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -33,6 +35,8 @@ import org.logstash.common.LsQueueUtils;
 
 @JRubyClass(name = "MemoryWriteClient")
 public final class JrubyMemoryWriteClientExt extends JRubyAbstractQueueWriteClientExt {
+
+    private static final Logger LOGGER = LogManager.getLogger(JrubyMemoryWriteClientExt.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -58,6 +62,7 @@ public final class JrubyMemoryWriteClientExt extends JRubyAbstractQueueWriteClie
     protected JRubyAbstractQueueWriteClientExt doPush(final ThreadContext context,
         final JrubyEventExtLibrary.RubyEvent event)
         throws InterruptedException {
+        LOGGER.info("...JRubyAbstractQueueWriteClientExt.doPush..{}", event);
         queue.put(event);
         return this;
     }
@@ -65,6 +70,7 @@ public final class JrubyMemoryWriteClientExt extends JRubyAbstractQueueWriteClie
     @Override
     public JRubyAbstractQueueWriteClientExt doPushBatch(final ThreadContext context,
         final Collection<JrubyEventExtLibrary.RubyEvent> batch) throws InterruptedException {
+        LOGGER.info("...JRubyAbstractQueueWriteClientExt.batchsize..{}", batch.size());
         LsQueueUtils.addAll(queue, batch);
         return this;
     }

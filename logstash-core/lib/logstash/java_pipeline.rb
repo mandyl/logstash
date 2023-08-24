@@ -371,7 +371,7 @@ module LogStash; class JavaPipeline < JavaBasePipeline
     ThreadContext.put("pipeline.id", pipeline_id)
     ThreadContext.put("plugin.id", plugin.id)
     begin
-      @logger.info("......inputworker run....", :plugin => plugin.class.config_name)
+      @logger.info("......inputworker run....", :plugin => plugin.class.config_name, :threadname => Thread.current["name"])
       plugin.run(wrapped_write_client(plugin.id.to_sym))
     rescue => e
       if plugin.stop?

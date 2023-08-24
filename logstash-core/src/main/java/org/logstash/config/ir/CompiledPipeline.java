@@ -343,13 +343,11 @@ public final class CompiledPipeline {
             }         
             // we know for now this comes from batch.collection() which returns a LinkedHashSet
             final Collection<RubyEvent> result = compiledFilters.compute(RubyArray.newArray(RubyUtil.RUBY, batch), flush, shutdown);
+            LOGGER.info("...Collection .after filter {} {}", result, Thread.currentThread().getName());
             @SuppressWarnings({"unchecked"}) final RubyArray<RubyEvent> outputBatch = RubyUtil.RUBY.newArray(result.size());
             copyNonCancelledEvents(result, outputBatch);
+            LOGGER.info("...outputBatch... {}", outputBatch);
             compiledFilters.clear();
-            int count = outputBatch.size();
-            for (int i = 0; i < count; i++) {
-                LOGGER.info("...outputBatch ... {}", outputBatch.get(i));
-            }
             compiledOutputs.compute(outputBatch, flush, shutdown);
         }
     }
